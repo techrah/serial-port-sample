@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "Serial.hpp"
+#include "Formatter.hpp"
 
 using namespace std;
 
@@ -108,8 +109,7 @@ void Serial::open() {
 
     // get current tty settings
     if (tcgetattr(_fd, &tty) != 0) {
-        fprintf(stderr, "Error %i: %s\n", errno, strerror(errno));
-        return;
+        throw runtime_error(Formatter("Error %i: %s\n", errno, strerror(errno)).msg());
     }
 
     updateTty(tty);
@@ -120,8 +120,8 @@ void Serial::open() {
 
     // save tty settings
     if (tcsetattr(_fd, TCSANOW, &tty) != 0) {
-        fprintf(stderr, "Error %i: %s\n", errno, strerror(errno));
-    }    
+        throw runtime_error(Formatter("Error %i: %s\n", errno, strerror(errno)).msg());
+    }
 }
 
 void Serial::write(const string& str) {
@@ -129,7 +129,7 @@ void Serial::write(const string& str) {
         auto buf = str.c_str();
         ::write(_fd, buf, strlen(buf));
     } else {
-        cerr << "Error: Port is not open." << endl;
+        throw runtime_error("Error: Port is not open.");
     }
 }
 
