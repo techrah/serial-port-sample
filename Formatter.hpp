@@ -20,10 +20,25 @@ public:
         vsnprintf(_msg, MSG_LEN, fmt, args);
         va_end(args);
     }
-    ~Formatter() {
+    Formatter(const Formatter &f) : _msg(new char[MSG_LEN]) { strcpy(_msg, f._msg); }
+    Formatter(Formatter &&f) : _msg(f._msg) { f._msg = nullptr; }
+    Formatter& operator=(const Formatter &f) {
+        // copy assign
+        if (this == &f) return *this;
         delete[] _msg;
-        _msg = nullptr;
+        _msg = new char[MSG_LEN];
+        strcpy(_msg, f._msg);
+        return *this;
     }
+    Formatter& operator=(Formatter &&f) {
+        // move assign
+        if (this == &f) return *this;
+        delete[] _msg;
+        _msg = f._msg;
+        f._msg = nullptr;
+        return *this;
+    }
+    virtual ~Formatter() { delete[] _msg; _msg = nullptr; }
     const char* msg() const noexcept { return _msg; }
 };
 
