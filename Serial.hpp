@@ -56,6 +56,7 @@ public:
         
     void open();
     void write(const string &str);
+    const string read();
     void close();
 };
 
