@@ -44,6 +44,13 @@ public:
            bool parity = false,
            unsigned short stopBits = 1,
            unsigned short bitSize = 8);
+
+    // Don't allow copies to be made
+    Serial(const Serial&) = delete;
+    Serial& operator=(const Serial&) = delete;
+
+    Serial(Serial&&) = default;
+    Serial& operator=(Serial&&) = default;
     
     void setBaudrate(speed_t baudrate);
     speed_t getBaudrate() const { return _baudrate; }
