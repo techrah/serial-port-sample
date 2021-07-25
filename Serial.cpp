@@ -101,15 +101,14 @@ void Serial::open() {
     _fd = ::open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
 
     if (!IS_OPEN(_fd)) {
-        cerr << strerror(errno) << endl;
-        return;
+        throw runtime_error(Formatter("Error opening port (%i): %s\n", errno, strerror(errno)).msg());
     }
     
     struct termios tty;
 
     // get current tty settings
     if (tcgetattr(_fd, &tty) != 0) {
-        throw runtime_error(Formatter("Error %i: %s\n", errno, strerror(errno)).msg());
+        throw runtime_error(Formatter("Error getting tty settings (%i): %s\n", errno, strerror(errno)).msg());
     }
 
     updateTty(tty);
@@ -120,27 +119,24 @@ void Serial::open() {
 
     // save tty settings
     if (tcsetattr(_fd, TCSANOW, &tty) != 0) {
-        throw runtime_error(Formatter("Error %i: %s\n", errno, strerror(errno)).msg());
+        throw runtime_error(Formatter("Error setting tty settings (%i): %s\n", errno, strerror(errno)).msg());
     }
 }
 
 void Serial::write(const string& str) {
-    if (IS_OPEN(_fd)) {
-        auto buf = str.c_str();
-        ::write(_fd, buf, strlen(buf));
-    } else {
-        throw runtime_error("Error: Port is not open.");
-    }
+    if (!IS_OPEN(_fd)) throw runtime_error("Error: Port is not open.");
+
+    auto buf = str.c_str();
+    ::write(_fd, buf, strlen(buf));
 }
 
 const string Serial::read() {
-    if (IS_OPEN(_fd)) {
-        char buf[256];
-        size_t len = ::read(_fd, &buf, 255);
-        buf[len] = '\0';
-        return string(buf);
-    }
-    throw runtime_error("Error: Port is not open.");
+    if (!IS_OPEN(_fd)) throw runtime_error("Error: Port is not open.");
+
+    char buf[256];
+    size_t len = ::read(_fd, &buf, 255);
+    buf[len] = '\0';
+    return string(buf);
 }
 
 void Serial::close() {
