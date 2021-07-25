@@ -21,6 +21,9 @@ private:
     unsigned short _stopBits = 1;
     unsigned short _bitSize = CS8;
 
+    inline static const uint16_t _bufSz = 256;
+    char           _buf[_bufSz];
+
 public:
     string port;
 

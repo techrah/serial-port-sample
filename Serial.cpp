@@ -133,10 +133,8 @@ void Serial::write(const string& str) {
 const string Serial::read() {
     if (!IS_OPEN(_fd)) throw runtime_error("Error: Port is not open.");
 
-    char buf[256];
-    size_t len = ::read(_fd, &buf, 255);
-    buf[len] = '\0';
-    return string(buf);
+    size_t len = ::read(_fd, _buf, _bufSz);
+    return string(_buf, len);
 }
 
 void Serial::close() {
